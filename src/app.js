@@ -8,7 +8,23 @@ app.use(express.json());
 app.post("/user", async (req, res) => {
   const user = new User(req.body);
   try {
+    // prettier-ignore
+    const AVALABILE_FILDS = ["firstName","lastName","phoneNo","skills","gender","emailId","password"];
+
+    const canUpload = Object.keys(req.body).every((k) =>
+      AVALABILE_FILDS.includes(k)
+    );
+    console.log(typeof canUpload, canUpload);
+    if (!canUpload) {
+      return res.status(400).send("invalid filds");
+    }
+    const phNumber = String(req.body.phoneNo);
+    if (phNumber.length < 9 || phNumber.length > 10) {
+      return res.status(400).send("Wrong Phone No.");
+    }
+
     await user.save();
+
     res.send("User Data Uploaded successfully...");
   } catch (err) {
     res.status(500).send("Error saving the user" + err.message);
@@ -64,14 +80,8 @@ app.patch("/user/:userId", async (req, res) => {
   const data = req.body;
   console.log(data);
   try {
-    const ALLOWED_UPDATES = [
-      "userId",
-      "photoUrl",
-      "about",
-      "gender",
-      "skills",
-      "age",
-    ];
+    // prettier-ignore
+    const ALLOWED_UPDATES = ["userId","photoUrl","about","firstName","lastName","phone_No.","skills","gender","age"];
 
     const isUpdateAllowed = Object.keys(data).every((k) =>
       ALLOWED_UPDATES.includes(k)
@@ -94,7 +104,7 @@ app.patch("/user/:userId", async (req, res) => {
     }
     res.send("User data update succefually");
   } catch (err) {
-    res.status(500).send("Something went wrong");
+    res.status(500).send("Something went wrong " + err);
   }
 });
 
