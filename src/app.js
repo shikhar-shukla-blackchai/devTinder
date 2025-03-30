@@ -2,32 +2,31 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const { validateSignupData } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
 app.post("/user", async (req, res) => {
-  const user = new User(req.body);
   try {
-    // prettier-ignore
-    const AVALABILE_FILDS = ["firstName","lastName","phoneNo","skills","gender","emailId","password"];
+    validateSignupData(req);
 
-    const canUpload = Object.keys(req.body).every((k) =>
-      AVALABILE_FILDS.includes(k)
-    );
-    console.log(typeof canUpload, canUpload);
-    if (!canUpload) {
-      return res.status(400).send("invalid filds");
-    }
-    const phNumber = String(req.body.phoneNo);
-    if (phNumber.length < 9 || phNumber.length > 10) {
-      return res.status(400).send("Wrong Phone No.");
-    }
+    const { firstName, lastName, password, emailId } = req.body;
+    const passwordHash = await bcrypt.hash(password, 1);
+    console.log(passwordHash);
+
+    const user = new User({
+      firstName,
+      lastName,
+      password: passwordHash,
+      emailId,
+    });
 
     await user.save();
 
     res.send("User Data Uploaded successfully...");
   } catch (err) {
-    res.status(500).send("Error saving the user" + err.message);
+    res.status(500).send("Error : " + err.message);
   }
 });
 
