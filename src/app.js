@@ -12,7 +12,7 @@ app.post("/user", async (req, res) => {
     validateSignupData(req);
 
     const { firstName, lastName, password, emailId } = req.body;
-    const passwordHash = await bcrypt.hash(password, 1);
+    const passwordHash = await bcrypt.hash(password, 10);
     console.log(passwordHash);
 
     const user = new User({
@@ -27,6 +27,28 @@ app.post("/user", async (req, res) => {
     res.send("User Data Uploaded successfully...");
   } catch (err) {
     res.status(500).send("Error : " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId });
+
+    if (!user) {
+      throw new Error("Invalid Cradentials");
+    }
+
+    console.log(password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid Cradentials");
+    }
+    return res.send("Login successfully");
+  } catch (err) {
+    res.status(500).send("Error : " + err);
   }
 });
 
