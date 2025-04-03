@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,7 +38,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator: (value) => validator.isStrongPassword(value),
-        message: (props) => "PASSWOED IS TO WEEK " + props.value,
+        message: (props) => "PASSWORD IS TO WEAK " + props.value,
       },
     },
     age: {
@@ -48,7 +50,7 @@ const userSchema = new mongoose.Schema(
 
       validate(value) {
         if (!["mail", "femail", "other"].includes(value)) {
-          throw new error("Gender data is not valid");
+          throw new Error("Gender is not valid");
         }
       },
     },
@@ -72,5 +74,26 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.methods.getJWT = async function () {
+  const user = this;
+
+  const token = await jwt.sign({ _id: user._id }, "SECRETkey@123", {
+    expiresIn: "1d",
+  });
+
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = user.password;
+
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser,
+    passwordHash
+  );
+  return isPasswordValid;
+};
 
 module.exports = mongoose.model("User", userSchema);
