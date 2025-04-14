@@ -3,6 +3,7 @@ const authRouter = express.Router();
 const { validateSignupData } = require("../utils/validation");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+authRouter.use(express.json());
 
 authRouter.post("/signin", async (req, res) => {
   try {
@@ -20,7 +21,7 @@ authRouter.post("/signin", async (req, res) => {
 
     await user.save();
 
-    res.send("User Data Uploaded successfully...");
+    res.send("New User is added to the data base successfully...");
   } catch (err) {
     res.status(500).send("Error : " + err.message);
   }
@@ -52,6 +53,19 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).send("Error : " + err.message);
   }
 });
+
+authRouter.post("/logout", async (req, res) => {
+  try {
+    res
+      .cookie("token", null, {
+        expires: new Date(Date.now()),
+      })
+      .send("logout successfully");
+  } catch (err) {
+    res.status(501).send("ERROR : " + err);
+  }
+});
+
 module.exports = authRouter;
 
 /*

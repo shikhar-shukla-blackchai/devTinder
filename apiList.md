@@ -10,17 +10,15 @@
 
 - GET/profile/view
 - PATCH/profile/edit
-- PATCH/profile/password
+- PATCH/profile/password = forgot password
 
 ## connectionRequestRouter
 
-- POST/request/send/interested/:userId
-- POST/request/send/ignored/:userId
-- POST/request/send/accepted/:requestId
-- POST/request/send/rejected/:requestId
+- POST/request/send/:status/:userId
+- POST/request/review/:status/:userId
 
 ## userRouter
 
-- GET/user/connections
+- GET/user/requests/received
 - GET/requests/received
 - GET/feed - Gets you the profiles of other users on platform

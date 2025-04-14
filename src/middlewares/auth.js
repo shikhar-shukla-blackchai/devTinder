@@ -4,12 +4,10 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
-    console.log("Cookies:", req.cookies); // Debugging: Check if token exists
 
     if (!token) {
       throw new Error("Token not Provided!!");
     }
-    console.log("token :" + token);
 
     const decodeData = await jwt.verify(token, "SECRETkey@123");
     const { _id } = decodeData;
